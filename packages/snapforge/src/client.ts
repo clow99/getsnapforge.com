@@ -42,7 +42,9 @@ export class SnapforgeClient {
       ttlOverrideSeconds: request.ttlOverrideSeconds ?? this.defaultTtlSeconds,
       width: request.width,
       height: request.height,
-      fullPage: request.fullPage
+      fullPage: request.fullPage,
+      format: request.format,
+      quality: request.quality
     };
 
     const capture = await this.requestJson<CaptureResponsePayload>({

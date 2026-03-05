@@ -1,5 +1,5 @@
 {
-  "name": "snapforge",
+  "name": "@npmforge/snapforge",
   "version": "0.1.0",
   "description": "TypeScript client for the self-hosted Snapforge screenshot service.",
   "type": "module",

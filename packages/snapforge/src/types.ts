@@ -1,3 +1,5 @@
+export type ImageFormat = "png" | "jpeg" | "webp";
+
 export interface SnapforgeClientOptions {
   baseUrl: string;
   apiKey: string;
@@ -11,6 +13,8 @@ export interface SnapshotRequest {
   width?: number;
   height?: number;
   fullPage?: boolean;
+  format?: ImageFormat;
+  quality?: number;
 }
 
 export interface CaptureResponsePayload {

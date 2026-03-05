@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { RuntimeConfig } from "./config.js";
+import type { ImageFormat } from "./types.js";
 
 export function normalizeTargetUrl(value: string): string {
   const parsed = new URL(value);
@@ -29,8 +30,10 @@ export function createSnapshotKey(options: {
   width: number;
   height: number;
   fullPage: boolean;
+  format: ImageFormat;
+  quality: number;
 }): string {
-  const input = `${options.url}|${options.width}x${options.height}|${options.fullPage ? "full" : "viewport"}`;
+  const input = `${options.url}|${options.width}x${options.height}|${options.fullPage ? "full" : "viewport"}|${options.format}@${options.quality}`;
   return crypto.createHash("sha256").update(input).digest("hex").slice(0, 24);
 }
 

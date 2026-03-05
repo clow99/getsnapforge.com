@@ -1,6 +1,12 @@
 import type { Browser } from "playwright";
 import { chromium } from "playwright";
-import type { CapturedImageResult } from "./types.js";
+import type { CapturedImageResult, ImageFormat } from "./types.js";
+
+const CONTENT_TYPES: Record<ImageFormat, string> = {
+  png: "image/png",
+  jpeg: "image/jpeg",
+  webp: "image/webp"
+};
 
 let browserPromise: Promise<Browser> | null = null;
 
@@ -17,6 +23,8 @@ export async function captureWebsite(options: {
   width: number;
   height: number;
   fullPage: boolean;
+  format: ImageFormat;
+  quality: number;
   navigationTimeoutMs: number;
 }): Promise<CapturedImageResult> {
   const browser = await getBrowser();
@@ -32,14 +40,15 @@ export async function captureWebsite(options: {
     });
 
     const buffer = await page.screenshot({
-      type: "png",
+      type: options.format,
+      quality: options.format !== "png" ? options.quality : undefined,
       fullPage: options.fullPage
     });
 
     return {
       buffer,
-      format: "png",
-      contentType: "image/png"
+      format: options.format,
+      contentType: CONTENT_TYPES[options.format]
     };
   } finally {
     await context.close();

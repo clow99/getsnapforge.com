@@ -1,9 +1,14 @@
-import { createSnapforgeClient } from "snapforge";
+import { Alert, Badge, Card, CardBody, CardHeader, Title } from "./ui-client";
+import { createSnapforgeClient, type ImageFormat } from "@npmforge/snapforge";
 
 interface LiveSnapshotProps {
   targetUrl: string;
   title: string;
   ttlOverrideSeconds?: number;
+  width?: number;
+  height?: number;
+  format?: ImageFormat;
+  quality?: number;
 }
 
 function getClient() {
@@ -14,35 +19,34 @@ function getClient() {
     return null;
   }
 
-  return createSnapforgeClient({
-    baseUrl,
-    apiKey
-  });
+  return createSnapforgeClient({ baseUrl, apiKey });
 }
 
 export async function LiveSnapshot({
   targetUrl,
   title,
-  ttlOverrideSeconds
+  ttlOverrideSeconds,
+  width = 1440,
+  height = 900,
+  format,
+  quality
 }: LiveSnapshotProps) {
   const client = getClient();
   if (!client) {
     return (
-      <article
-        style={{
-          display: "grid",
-          gap: "0.75rem",
-          border: "1px solid #232a35",
-          borderRadius: "0.75rem",
-          padding: "0.9rem",
-          background: "#11151c"
-        }}
-      >
-        <h2 style={{ fontSize: "1rem", fontWeight: 600 }}>{title}</h2>
-        <p style={{ fontSize: "0.825rem", color: "#9da8b7" }}>
-          Configure SNAPFORGE_SERVICE_URL and SNAPFORGE_API_KEY to render live snapshots.
-        </p>
-      </article>
+      <Card variant="shadow" size="md">
+        <CardHeader>
+          <Title level="h3" size="sm" weight="semibold">
+            {title}
+          </Title>
+        </CardHeader>
+        <CardBody>
+          <Alert variant="warning" title="Configuration required">
+            Set <code>SNAPFORGE_SERVICE_URL</code> and{" "}
+            <code>SNAPFORGE_API_KEY</code> to render live snapshots.
+          </Alert>
+        </CardBody>
+      </Card>
     );
   }
 
@@ -52,68 +56,55 @@ export async function LiveSnapshot({
       url: targetUrl,
       ttlOverrideSeconds,
       fullPage: true,
-      width: 1440,
-      height: 900
+      width,
+      height,
+      format,
+      quality
     });
   } catch (error) {
     return (
-      <article
-        style={{
-          display: "grid",
-          gap: "0.75rem",
-          border: "1px solid #232a35",
-          borderRadius: "0.75rem",
-          padding: "0.9rem",
-          background: "#11151c"
-        }}
-      >
-        <h2 style={{ fontSize: "1rem", fontWeight: 600 }}>{title}</h2>
-        <p style={{ fontSize: "0.825rem", color: "#9da8b7" }}>
-          Could not fetch snapshot for {targetUrl}.
-        </p>
-        <p style={{ fontSize: "0.75rem", color: "#7f8a98" }}>
-          {error instanceof Error ? error.message : "Unknown error"}
-        </p>
-      </article>
+      <Card variant="shadow" size="md">
+        <CardHeader>
+          <Title level="h3" size="sm" weight="semibold">
+            {title}
+          </Title>
+        </CardHeader>
+        <CardBody>
+          <Alert variant="danger" title={`Could not fetch snapshot`}>
+            {error instanceof Error ? error.message : "Unknown error"}
+          </Alert>
+        </CardBody>
+      </Card>
     );
   }
 
   return (
-    <article
-      style={{
-        display: "grid",
-        gap: "0.75rem",
-        border: "1px solid #232a35",
-        borderRadius: "0.75rem",
-        padding: "0.9rem",
-        background: "#11151c"
-      }}
-    >
-      <header
-        style={{
-          display: "grid",
-          gap: "0.35rem"
-        }}
-      >
-        <h2 style={{ fontSize: "1rem", fontWeight: 600 }}>{title}</h2>
-        <p style={{ fontSize: "0.825rem", color: "#9da8b7" }}>
-          Source: {snapshot.sourceUrl}
+    <Card variant="shadow" size="md" hoverable>
+      <CardHeader>
+        <div className="snapshot-card__header">
+          <Title level="h3" size="sm" weight="semibold">
+            {title}
+          </Title>
+          <Badge
+            variant={snapshot.cached ? "success" : "info"}
+            size="sm"
+            dot
+          >
+            {snapshot.cached ? "Cache hit" : "Fresh capture"}
+          </Badge>
+        </div>
+        <p className="snapshot-card__meta">
+          {snapshot.sourceUrl} &middot;{" "}
+          {new Date(snapshot.capturedAt).toLocaleString()}
         </p>
-        <p style={{ fontSize: "0.75rem", color: "#7f8a98" }}>
-          Captured at {new Date(snapshot.capturedAt).toLocaleString()} ({snapshot.cached ? "cache hit" : "fresh capture"})
-        </p>
-      </header>
-
-      <img
-        src={snapshot.dataUrl}
-        alt={`Live screenshot for ${title}`}
-        style={{
-          width: "100%",
-          height: "auto",
-          borderRadius: "0.5rem",
-          border: "1px solid #2a3342"
-        }}
-      />
-    </article>
+      </CardHeader>
+      <CardBody>
+        <img
+          src={snapshot.dataUrl}
+          alt={`Live screenshot of ${title}`}
+          className="snapshot-card__image"
+        />
+      </CardBody>
+    </Card>
   );
 }

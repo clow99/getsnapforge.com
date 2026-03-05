@@ -5,7 +5,8 @@ import { captureWebsite } from "./capture.js";
 import type {
   CaptureRequestPayload,
   CaptureResponse,
-  CapturedImageResult
+  CapturedImageResult,
+  ImageFormat
 } from "./types.js";
 import {
   assertTargetUrlAllowed,
@@ -14,11 +15,33 @@ import {
   parseViewportDimension
 } from "./url-policy.js";
 
+const VALID_FORMATS = new Set<ImageFormat>(["png", "jpeg", "webp"]);
+const DEFAULT_FORMAT: ImageFormat = "png";
+const DEFAULT_QUALITY = 80;
+
+function parseFormat(value: unknown): ImageFormat {
+  if (typeof value === "string" && VALID_FORMATS.has(value as ImageFormat)) {
+    return value as ImageFormat;
+  }
+
+  return DEFAULT_FORMAT;
+}
+
+function parseQuality(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return DEFAULT_QUALITY;
+  }
+
+  return Math.min(100, Math.max(0, Math.floor(value)));
+}
+
 type CaptureFn = (options: {
   url: string;
   width: number;
   height: number;
   fullPage: boolean;
+  format: ImageFormat;
+  quality: number;
   navigationTimeoutMs: number;
 }) => Promise<CapturedImageResult>;
 
@@ -120,9 +143,11 @@ export function createApp(options: CreateAppOptions) {
         options.config.maxViewportHeight
       );
       const fullPage = body.fullPage === true;
+      const format = parseFormat(body.format);
+      const quality = parseQuality(body.quality);
       const ttlSeconds = parseTtl(body.ttlOverrideSeconds, options.config.cacheTtlSeconds);
 
-      const key = createSnapshotKey({ url: sourceUrl, width, height, fullPage });
+      const key = createSnapshotKey({ url: sourceUrl, width, height, fullPage, format, quality });
       const existing = await options.cache.getMeta(key);
 
       if (existing && options.cache.isFresh(existing, ttlSeconds)) {
@@ -148,6 +173,8 @@ export function createApp(options: CreateAppOptions) {
         width,
         height,
         fullPage,
+        format,
+        quality,
         navigationTimeoutMs: options.config.navigationTimeoutMs
       });
 
@@ -202,8 +229,10 @@ export function createApp(options: CreateAppOptions) {
         options.config.maxViewportHeight
       );
       const fullPage = body.fullPage === true;
+      const format = parseFormat(body.format);
+      const quality = parseQuality(body.quality);
       const ttlSeconds = parseTtl(body.ttlOverrideSeconds, options.config.cacheTtlSeconds);
-      const key = createSnapshotKey({ url: sourceUrl, width, height, fullPage });
+      const key = createSnapshotKey({ url: sourceUrl, width, height, fullPage, format, quality });
 
       const capturedAtMs = Date.now();
       const captured = await captureFn({
@@ -211,6 +240,8 @@ export function createApp(options: CreateAppOptions) {
         width,
         height,
         fullPage,
+        format,
+        quality,
         navigationTimeoutMs: options.config.navigationTimeoutMs
       });
 

@@ -1,0 +1,64 @@
+name: Auto bump snapforge
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    if: ${{ !contains(gitea.event.head_commit.message, '[skip bump]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect snapforge changes
+        id: changes
+        shell: bash
+        run: |
+          BEFORE_SHA="${{ gitea.event.before }}"
+          AFTER_SHA="${{ gitea.sha }}"
+
+          if [[ "$BEFORE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            RANGE="$AFTER_SHA^..$AFTER_SHA"
+          else
+            RANGE="$BEFORE_SHA..$AFTER_SHA"
+          fi
+
+          if git diff --name-only "$RANGE" | grep -E '^packages/snapforge/' > /dev/null; then
+            echo "snapforge_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "snapforge_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        if: ${{ steps.changes.outputs.snapforge_changed == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bump snapforge patch version
+        if: ${{ steps.changes.outputs.snapforge_changed == 'true' }}
+        shell: bash
+        run: |
+          npm version patch --no-git-tag-version --prefix packages/snapforge
+          NEW_VERSION="$(node -p "require('./packages/snapforge/package.json').version")"
+
+          git config user.name "gitea-actions[bot]"
+          git config user.email "gitea-actions[bot]@localhost"
+
+          git add packages/snapforge/package.json
+
+          if git diff --cached --quiet; then
+            echo "No version change to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(release): bump snapforge to v$NEW_VERSION [skip bump]"
+          git push

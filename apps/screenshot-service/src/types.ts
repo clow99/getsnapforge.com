@@ -1,4 +1,4 @@
-export type ImageFormat = "png";
+export type ImageFormat = "png" | "jpeg" | "webp";
 
 export interface CaptureRequestPayload {
   url: string;
@@ -6,6 +6,8 @@ export interface CaptureRequestPayload {
   width?: number;
   height?: number;
   fullPage?: boolean;
+  format?: ImageFormat;
+  quality?: number;
 }
 
 export interface SnapshotMeta {
