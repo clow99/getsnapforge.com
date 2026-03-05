@@ -1,0 +1,28 @@
+{
+  "name": "@getsnapforge/screenshot-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted screenshot API for Snapforge.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/src/server.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "express": "*",
+    "playwright": "*"
+  },
+  "devDependencies": {
+    "@types/express": "*",
+    "@types/node": "*",
+    "@types/supertest": "*",
+    "supertest": "*",
+    "tsx": "*",
+    "typescript": "*",
+    "vitest": "*"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "getsnapforge-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for Snapforge SDK, screenshot service, and demo app.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:demo": "npm run dev --workspace @getsnapforge/demo-next",
+    "dev:service": "npm run dev --workspace @getsnapforge/screenshot-service",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
