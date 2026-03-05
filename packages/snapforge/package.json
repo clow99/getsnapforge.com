@@ -2,6 +2,10 @@
   "name": "@npmforge/snapforge",
   "version": "0.1.1",
   "description": "TypeScript client for the self-hosted Snapforge screenshot service.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clow99/getsnapforge.com"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./src/index.ts",
