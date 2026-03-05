@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@npmforge'
+          scope: '@${{ github.repository_owner }}'
 
       - name: Verify auth token exists
         run: |
@@ -41,12 +41,24 @@ jobs:
       - name: Build package
         run: npm -w @npmforge/snapforge run build
 
+      - name: Normalize package scope for GitHub Packages
+        id: package_name
+        working-directory: packages/snapforge
+        run: |
+          ORIGINAL_NAME=$(node -p "JSON.parse(require('fs').readFileSync('./package.json','utf8')).name")
+          PACKAGE_BASENAME=${ORIGINAL_NAME#*/}
+          OWNER_SCOPE=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          GH_PACKAGE_NAME="@${OWNER_SCOPE}/${PACKAGE_BASENAME}"
+          npm pkg set name="$GH_PACKAGE_NAME"
+          echo "package_name=$GH_PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "normalized package name: $GH_PACKAGE_NAME"
+
       - name: Check if version already published
         id: version_check
         working-directory: packages/snapforge
         run: |
-          PACKAGE_NAME=$(node -p "JSON.parse(require('fs').readFileSync('./package.json','utf8')).name")
           VERSION=$(node -p "JSON.parse(require('fs').readFileSync('./package.json','utf8')).version")
+          PACKAGE_NAME="${{ steps.package_name.outputs.package_name }}"
           echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if npm view "$PACKAGE_NAME@$VERSION" --registry https://npm.pkg.github.com 2>/dev/null; then
