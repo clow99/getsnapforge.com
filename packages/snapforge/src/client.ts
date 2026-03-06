@@ -1,8 +1,9 @@
-import type {
-  CaptureResponsePayload,
-  SnapshotRequest,
-  SnapshotResult,
-  SnapforgeClientOptions
+import {
+  SNAPSHOT_PRESETS,
+  type CaptureResponsePayload,
+  type SnapshotRequest,
+  type SnapshotResult,
+  type SnapforgeClientOptions
 } from "./types.js";
 
 interface RequestOptions {
@@ -37,12 +38,16 @@ export class SnapforgeClient {
       throw new Error("request.url is required.");
     }
 
+    const presetDefaults = request.preset
+      ? SNAPSHOT_PRESETS[request.preset]
+      : undefined;
+
     const captureBody = {
       url: request.url,
       ttlOverrideSeconds: request.ttlOverrideSeconds ?? this.defaultTtlSeconds,
-      width: request.width,
-      height: request.height,
-      fullPage: request.fullPage,
+      width: request.width ?? presetDefaults?.width,
+      height: request.height ?? presetDefaults?.height,
+      fullPage: request.fullPage ?? presetDefaults?.fullPage,
       format: request.format,
       quality: request.quality
     };

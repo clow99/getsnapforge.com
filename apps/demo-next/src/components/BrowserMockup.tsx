@@ -40,9 +40,7 @@ export async function BrowserMockup({
     const snapshot = await client.getSnapshot({
       url,
       ttlOverrideSeconds,
-      fullPage: false,
-      width: 1280,
-      height: 800,
+      preset: "1080p",
     });
     dataUrl = snapshot.dataUrl;
   } catch {
