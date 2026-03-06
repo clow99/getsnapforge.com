@@ -1,6 +1,6 @@
 {
   "name": "@npmforge/snapforge",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "TypeScript client for the self-hosted Snapforge screenshot service.",
   "repository": {
     "type": "git",
