@@ -180,6 +180,9 @@ export default function HomePage() {
           <a href="#why" className="lp-nav__link">Why</a>
           <a href="#api" className="lp-nav__link">API</a>
           <a href="#playground" className="lp-nav__link">Playground</a>
+          <a href="/IMPLEMENT.md" className="lp-nav__link" target="_blank" rel="noopener noreferrer">
+            Implement
+          </a>
         </div>
         <div className="lp-nav__actions">
           <code className="lp-install-pill">npm i @npmforge/snapforge</code>
@@ -359,6 +362,14 @@ export default function HomePage() {
             rel="noopener noreferrer"
           >
             View on GitHub
+          </a>
+          <a
+            href="/IMPLEMENT.md"
+            className="lp-btn lp-btn--outline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            AI Implementation Guide
           </a>
         </div>
       </section>
