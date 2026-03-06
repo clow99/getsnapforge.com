@@ -25,6 +25,11 @@ services:
         NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Snapforge}
     container_name: snapforge-demo
     restart: unless-stopped
+    depends_on:
+      - snapforge
+    environment:
+      - SNAPFORGE_SERVICE_URL=${SNAPFORGE_SERVICE_URL:-http://snapforge:4000}
+      - SNAPFORGE_API_KEY=${SNAPFORGE_API_KEY:?Set SNAPFORGE_API_KEY}
     ports:
       - "${WEB_PORT:-3000}:3000"
     profiles:

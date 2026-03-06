@@ -15,7 +15,7 @@ import {
   parseViewportDimension
 } from "./url-policy.js";
 
-const VALID_FORMATS = new Set<ImageFormat>(["png", "jpeg", "webp"]);
+const VALID_FORMATS = new Set<ImageFormat>(["png", "jpeg"]);
 const DEFAULT_FORMAT: ImageFormat = "png";
 const DEFAULT_QUALITY = 80;
 

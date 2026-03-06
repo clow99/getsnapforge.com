@@ -1,5 +1,6 @@
+import { Suspense } from "react";
 import Image from "next/image";
-import { Badge, Divider } from "../components/ui-client";
+import { Badge, Card, CardHeader, CardBody, Divider, Title } from "../components/ui-client";
 import { LiveSnapshot } from "../components/LiveSnapshot";
 import { BrowserMockup } from "../components/BrowserMockup";
 
@@ -7,8 +8,8 @@ export const dynamic = "force-dynamic";
 
 const DEMO_URLS = [
   { title: "Vercel", url: "https://vercel.com" },
-  { title: "Cloudflare", url: "https://www.cloudflare.com" },
-  { title: "Mozilla", url: "https://www.mozilla.org" },
+  { title: "Velocity UI", url: "https://www.velocityui.com" },
+  { title: "Mozilla", url: "https://www.mozilla.org/en-US/" },
 ];
 
 const FEATURES = [
@@ -123,6 +124,43 @@ const COMPAT_ITEMS = [
   "Edge runtime",
 ];
 
+function BrowserMockupSkeleton({ hostname }: { hostname: string }) {
+  return (
+    <div className="bm bm--skeleton">
+      <div className="bm__bar">
+        <div className="bm__dots">
+          <span className="bm__dot bm__dot--red" />
+          <span className="bm__dot bm__dot--yellow" />
+          <span className="bm__dot bm__dot--green" />
+        </div>
+        <div className="bm__address">{hostname}</div>
+      </div>
+      <div className="bm__skeleton" />
+    </div>
+  );
+}
+
+function LiveSnapshotSkeleton({ title }: { title: string }) {
+  return (
+    <Card variant="shadow" size="md">
+      <CardHeader>
+        <div className="snapshot-card__header">
+          <Title level="h3" size="sm" weight="semibold">
+            {title}
+          </Title>
+          <Badge variant="default" size="sm" dot>
+            Loading…
+          </Badge>
+        </div>
+        <p className="snapshot-card__meta">Fetching snapshot…</p>
+      </CardHeader>
+      <CardBody>
+        <div className="snapshot-card__skeleton" />
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function HomePage() {
   return (
     <main className="lp-root">
@@ -179,9 +217,16 @@ export default function HomePage() {
       </section>
 
       <section className="lp-hero-visual">
-        <BrowserMockup url="https://vercel.com" ttlOverrideSeconds={300} />
-        <BrowserMockup url="https://www.cloudflare.com" ttlOverrideSeconds={300} />
-        <BrowserMockup url="https://www.mozilla.org" ttlOverrideSeconds={300} />
+        {["vercel.com", "www.velocityui.com", "www.mozilla.org/en-US/"].map(
+          (host) => (
+            <Suspense key={host} fallback={<BrowserMockupSkeleton hostname={host} />}>
+              <BrowserMockup
+                url={`https://${host}`}
+                ttlOverrideSeconds={300}
+              />
+            </Suspense>
+          )
+        )}
       </section>
 
       <Divider />
@@ -285,12 +330,13 @@ export default function HomePage() {
         </p>
         <div className="snapshot-grid">
           {DEMO_URLS.map((site) => (
-            <LiveSnapshot
-              key={site.url}
-              title={site.title}
-              targetUrl={site.url}
-              ttlOverrideSeconds={120}
-            />
+            <Suspense key={site.url} fallback={<LiveSnapshotSkeleton title={site.title} />}>
+              <LiveSnapshot
+                title={site.title}
+                targetUrl={site.url}
+                ttlOverrideSeconds={120}
+              />
+            </Suspense>
           ))}
         </div>
       </section>

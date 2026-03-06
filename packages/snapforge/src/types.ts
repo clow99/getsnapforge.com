@@ -1,4 +1,4 @@
-export type ImageFormat = "png" | "jpeg" | "webp";
+export type ImageFormat = "png" | "jpeg";
 
 export interface SnapforgeClientOptions {
   baseUrl: string;

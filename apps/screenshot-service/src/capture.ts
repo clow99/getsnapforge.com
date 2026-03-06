@@ -4,8 +4,7 @@ import type { CapturedImageResult, ImageFormat } from "./types.js";
 
 const CONTENT_TYPES: Record<ImageFormat, string> = {
   png: "image/png",
-  jpeg: "image/jpeg",
-  webp: "image/webp"
+  jpeg: "image/jpeg"
 };
 
 let browserPromise: Promise<Browser> | null = null;
