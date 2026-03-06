@@ -1,39 +1,33 @@
 services:
   snapforge:
-    build:
-      context: .
-      dockerfile: apps/screenshot-service/Dockerfile
     container_name: snapforge
-    restart: unless-stopped
+    image: 10.0.0.2:5000/snapforge:live
+    env_file:
+      - .env
     ports:
-      - "${SERVICE_PORT:-4000}:4000"
-    environment:
-      - SNAPFORGE_API_KEY=${SNAPFORGE_API_KEY:?Set SNAPFORGE_API_KEY}
-      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS:-300}
-      - NAVIGATION_TIMEOUT_MS=${NAVIGATION_TIMEOUT_MS:-15000}
-      - URL_ALLOWLIST=${URL_ALLOWLIST:-}
-      - URL_DENYLIST=${URL_DENYLIST:-}
+      - "4000:4000"
+    restart: unless-stopped
+    cpus: "0.50"
+    mem_limit: 768m
+    mem_reservation: 384m
+    pids_limit: 200
     volumes:
       - snapforge-cache:/app/cache
 
   snapforge-demo:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Snapforge}
     container_name: snapforge-demo
+    image: 10.0.0.2:5000/snapforge-demo:live
+    env_file:
+      - .env
+    ports:
+      - "3020:3000"
     restart: unless-stopped
+    cpus: "0.50"
+    mem_limit: 768m
+    mem_reservation: 384m
+    pids_limit: 200
     depends_on:
       - snapforge
-    environment:
-      - SNAPFORGE_SERVICE_URL=${SNAPFORGE_SERVICE_URL:-http://snapforge:4000}
-      - SNAPFORGE_API_KEY=${SNAPFORGE_API_KEY:?Set SNAPFORGE_API_KEY}
-    ports:
-      - "${WEB_PORT:-3000}:3000"
-    profiles:
-      - demo
 
 volumes:
   snapforge-cache:

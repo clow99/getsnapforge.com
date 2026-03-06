@@ -1,4 +1,4 @@
-name: Build and Deploy Snapforge Demo
+name: Build and Deploy Snapforge
 
 on:
   push:
@@ -10,22 +10,31 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: localhost:5000
-      IMAGE_NAME: snapforge-demo
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker image
+      - name: Build screenshot service image
+        run: |
+          docker build \
+            --file apps/screenshot-service/Dockerfile \
+            --tag "${REGISTRY}/snapforge:${{ gitea.sha }}" \
+            --tag "${REGISTRY}/snapforge:live" \
+            .
+
+      - name: Build demo image
         run: |
           docker build \
             --file Dockerfile \
             --build-arg NEXT_PUBLIC_APP_URL="${{ vars.NEXT_PUBLIC_APP_URL }}" \
             --build-arg NEXT_PUBLIC_APP_NAME="${{ vars.NEXT_PUBLIC_APP_NAME }}" \
-            --tag "${REGISTRY}/${IMAGE_NAME}:${{ gitea.sha }}" \
-            --tag "${REGISTRY}/${IMAGE_NAME}:latest" \
+            --tag "${REGISTRY}/snapforge-demo:${{ gitea.sha }}" \
+            --tag "${REGISTRY}/snapforge-demo:live" \
             .
 
-      - name: Push Docker images
+      - name: Push images
         run: |
-          docker push "${REGISTRY}/${IMAGE_NAME}:${{ gitea.sha }}"
-          docker push "${REGISTRY}/${IMAGE_NAME}:latest"
+          docker push "${REGISTRY}/snapforge:${{ gitea.sha }}"
+          docker push "${REGISTRY}/snapforge:live"
+          docker push "${REGISTRY}/snapforge-demo:${{ gitea.sha }}"
+          docker push "${REGISTRY}/snapforge-demo:live"
